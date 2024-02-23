@@ -26,7 +26,9 @@ namespace ChipFlip.Managers
         public List<Texture> textures = new List<Texture>();
         public List<Tile> tileSprites = new List<Tile>();
         public Tile[,] board;
-        public Sprite[,] chips;
+        public Chip[,] chips;
+        public int chip1Ct = 0;
+        public int chip2Ct = 0;
         private Texture _chip1Texture;
         private Texture _chip2Texture;
         public Tile highlight;
@@ -70,7 +72,7 @@ namespace ChipFlip.Managers
         private void CreateBoard()
         {
             board = new Tile[Columns, Rows];
-            chips = new Sprite[Columns, Rows];
+            chips = new Chip[Columns, Rows];
             Vector2 position = new Vector2();
 
             for (int y = 0; y < Rows; y++)
@@ -82,10 +84,13 @@ namespace ChipFlip.Managers
                 }
             }
 
-            chips[3, 3] = new Sprite(_chip1Texture, board[3, 3].Position);
-            chips[4, 3] = new Sprite(_chip2Texture, board[4, 3].Position);
-            chips[3, 4] = new Sprite(_chip2Texture, board[3, 4].Position);
-            chips[4, 4] = new Sprite(_chip1Texture, board[4, 4].Position);
+            chips[3, 3] = new Chip(_chip1Texture, board[3, 3].Position, 3, 3);
+            chips[4, 3] = new Chip(_chip2Texture, board[4, 3].Position, 4, 3);
+            chips[3, 4] = new Chip(_chip2Texture, board[3, 4].Position, 3, 4);
+            chips[4, 4] = new Chip(_chip1Texture, board[4, 4].Position, 4, 4);
+
+            chip1Ct = 2;
+            chip2Ct = 2;
         }
 
         public void AddTexture(string textureName)
@@ -108,13 +113,325 @@ namespace ChipFlip.Managers
         public void SetChip(Tile tile, int whichChip)
         {
             Texture texture = whichChip == 0 ? _chip1Texture : _chip2Texture;
-            chips[tile.Column, tile.Row] = new Sprite(texture, tile.Position);
-            FlipChips(tile.Column, tile.Row);
+            chips[tile.Column, tile.Row] = new Chip(texture, tile.Position, tile.Column, tile.Row);
+
+            if(whichChip == 0)
+            {
+                chip1Ct++;
+            }
+            else
+            {
+                chip2Ct++;
+            }
         }
 
-        public void FlipChips(int col, int row)
+        public void ScanBoard(int col, int row, int whichChip)
         {
+            Texture chipTexture = whichChip == 0 ? _chip1Texture : _chip2Texture;
+            List<Chip> chipsToFlip = new List<Chip>();
 
+            //Scan Down
+            int y = row + 1;
+            while (true)
+            {
+                if (y >= Rows || chips[col, y] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if(chips[col, y].TextureName == chipTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, chipTexture);
+
+                    if(whichChip == 0)
+                    {
+                        chip1Ct += chipsToFlip.Count();
+                        chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        chip1Ct -= chipsToFlip.Count();
+                        chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[col, y]);
+                    y++;
+                }
+            }
+            
+            chipsToFlip.Clear();
+
+            //Scan Up
+            y = row - 1;
+            while (true)
+            {
+                if (y < 0 || chips[col, y] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if(chips[col, y].TextureName == chipTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, chipTexture);
+
+                    if (whichChip == 0)
+                    {
+                        chip1Ct += chipsToFlip.Count();
+                        chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        chip1Ct -= chipsToFlip.Count();
+                        chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[col, y]);
+                    y--;
+                }
+            }
+            
+            chipsToFlip.Clear();
+            
+            //Scan Right
+            int x = col + 1;
+            while (true)
+            {
+                if (x >= Columns || chips[x, row] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[x, row].TextureName == chipTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, chipTexture);
+
+                    if (whichChip == 0)
+                    {
+                        chip1Ct += chipsToFlip.Count();
+                        chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        chip1Ct -= chipsToFlip.Count();
+                        chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[x, row]);
+                    x++;
+                }
+            }
+            
+            chipsToFlip.Clear();
+
+            //Scan Left
+            x = col - 1;
+            while (true)
+            {
+                if (x < 0 || chips[x, row] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[x, row].TextureName == chipTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, chipTexture);
+
+                    if (whichChip == 0)
+                    {
+                        chip1Ct += chipsToFlip.Count();
+                        chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        chip1Ct -= chipsToFlip.Count();
+                        chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[x, row]);
+                    x--;
+                }
+            }
+            
+            chipsToFlip.Clear();
+
+            //Scan Diagonal Up Right
+            x = col + 1;
+            y = row - 1;
+
+            while (true)
+            {
+                if (x >= Columns || y < 0 || chips[x, y] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[x, y].TextureName == chipTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, chipTexture);
+
+                    if (whichChip == 0)
+                    {
+                        chip1Ct += chipsToFlip.Count();
+                        chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        chip1Ct -= chipsToFlip.Count();
+                        chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[x, y]);
+                    x++;
+                    y--;
+                }
+            }
+
+            chipsToFlip.Clear();
+
+            //Scan Diagonal Down Right
+            x = col + 1;
+            y = row + 1;
+
+            while (true)
+            {
+                if (x >= Columns || y >= Rows || chips[x, y] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[x, y].TextureName == chipTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, chipTexture);
+
+                    if (whichChip == 0)
+                    {
+                        chip1Ct += chipsToFlip.Count();
+                        chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        chip1Ct -= chipsToFlip.Count();
+                        chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[x, y]);
+                    x++;
+                    y++;
+                }
+            }
+
+            chipsToFlip.Clear();
+
+            //Scan Diagonal Down Left
+            x = col - 1;
+            y = row + 1;
+
+            while (true)
+            {
+                if (x < 0 || y >= Rows || chips[x, y] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[x, y].TextureName == chipTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, chipTexture);
+
+                    if (whichChip == 0)
+                    {
+                        chip1Ct += chipsToFlip.Count();
+                        chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        chip1Ct -= chipsToFlip.Count();
+                        chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[x, y]);
+                    x--;
+                    y++;
+                }
+            }
+
+            chipsToFlip.Clear();
+
+            //Scan Diagonal Up Left
+            x = col - 1;
+            y = row - 1;
+
+            while (true)
+            {
+                if (x < 0 || y < 0 || chips[x, y] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[x, y].TextureName == chipTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, chipTexture);
+
+                    if (whichChip == 0)
+                    {
+                        chip1Ct += chipsToFlip.Count();
+                        chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        chip1Ct -= chipsToFlip.Count();
+                        chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[x, y]);
+                    x--;
+                    y--;
+                }
+            }
+
+            chipsToFlip.Clear();
+        }
+
+        private void FlipChips(List<Chip> chipsToFlip, Texture changeTo)
+        {
+            if (chipsToFlip.Count > 0)
+            {
+                foreach (Chip chip in chipsToFlip)
+                {
+                    chips[chip.Column, chip.Row].Texture = changeTo;
+                }
+            }
         }
 
         public void Update()

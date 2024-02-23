@@ -7,8 +7,9 @@ namespace ChipFlip.Models
 {
     internal class Sprite
     {
-        public string SpriteName { get; set; }
-        protected readonly Texture2D _texture;
+        public string TextureName { get; set; }
+        protected Texture _texture;
+        public Texture Texture { get { return _texture; } set { _texture = value; TextureName = value.TextureName; } }
         public Vector2 Position { get; set; }
         public Vector2 Origin { get; set; }
         public SpriteEffects Effect { get; set; }
@@ -16,9 +17,9 @@ namespace ChipFlip.Models
         public Sprite(string spriteName) : this(spriteName, new Vector2(0f, 0f)) { }
         public Sprite(string spriteName, Vector2 position)
         {
-            SpriteName = spriteName;
+            TextureName = spriteName;
             Effect = SpriteEffects.None;
-            _texture = Globals.Content.Load<Texture2D>(SpriteName);
+            _texture = new Texture(TextureName);
             Position = position;
             Origin = Origin = new Vector2(0f, 0f);//new Vector2(_texture.Width / 2, _texture.Height / 2);
             isHovered = false;
@@ -26,7 +27,8 @@ namespace ChipFlip.Models
         public Sprite(Texture texture, Vector2 position) : this(texture, position, SpriteEffects.None) { }
         public Sprite(Texture texture, Vector2 position, SpriteEffects effect)
         {
-            _texture = texture.GetTexture();
+            _texture = texture;
+            TextureName = texture.TextureName;
             Position = position;
             Effect = effect;
             Origin = new Vector2(0f, 0f);//new Vector2(texture.Width / 2, texture.Height / 2);
@@ -51,7 +53,7 @@ namespace ChipFlip.Models
 
         public void Draw()
         {
-            Globals.SpriteBatch.Draw(_texture, Position, null, Color.White, 0f, Origin, 1f, Effect, 0f);
+            Globals.SpriteBatch.Draw(_texture.GetTexture(), Position, null, Color.White, 0f, Origin, 1f, Effect, 0f);
         }
     }
 }

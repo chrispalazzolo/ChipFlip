@@ -14,7 +14,7 @@ namespace ChipFlip
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
-            _graphics.ToggleFullScreen();
+            //_graphics.ToggleFullScreen();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
