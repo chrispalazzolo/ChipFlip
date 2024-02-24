@@ -52,7 +52,7 @@ namespace ChipFlip
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkOliveGreen);
+            GraphicsDevice.Clear(Color.Gray);
             _gameManager.Draw();
 
             base.Draw(gameTime);

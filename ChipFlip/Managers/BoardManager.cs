@@ -31,6 +31,7 @@ namespace ChipFlip.Managers
         public int chip2Ct = 0;
         private Texture _chip1Texture;
         private Texture _chip2Texture;
+        private Sprite _boarder;
         public Tile highlight;
         public Tile redHighlight;
         public int Rows { get; set; }
@@ -53,6 +54,7 @@ namespace ChipFlip.Managers
             boardSize.Height = tileSize.Height * Rows;
             offsetX = (Globals.WindowSize.X / 2) - (boardSize.Width / 2);
             offsetY = (Globals.WindowSize.Y / 2) - (boardSize.Height / 2);
+            _boarder.Position = new Vector2 (offsetX - ((_boarder.Texture.Width - boardSize.Width) / 2), offsetY - ((_boarder.Texture.Height - boardSize.Height) / 2));
             CreateBoard();
         }
 
@@ -62,8 +64,9 @@ namespace ChipFlip.Managers
             redHighlight = new Tile(new Texture("tile-highlight-red"), new Vector2(0f, 0f));
             _chip1Texture = new Texture("chip1");
             _chip2Texture = new Texture("chip2");
+            _boarder = new Sprite("BoardBorder");
 
-            if(textures.Count > 0)
+            if (textures.Count > 0)
             {
                 tileSize.Width = textures[0].Width;
                 tileSize.Height = textures[0].Height;
@@ -474,6 +477,8 @@ namespace ChipFlip.Managers
 
         public void Draw()
         {
+            _boarder.Draw();
+
             for (int y = 0; y < board.GetLength(1); y++)
             {
                 for (int x = 0; x < board.GetLength(0); x++)
