@@ -36,6 +36,7 @@ namespace ChipFlip
         {
             Globals.SpriteBatch = new SpriteBatch(GraphicsDevice);
             Globals.Font = Content.Load<SpriteFont>("Font");
+            Globals.FontLarge = Content.Load<SpriteFont>("FontLarge"); 
             _gameManager.Load();
         }
 
@@ -52,7 +53,7 @@ namespace ChipFlip
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Gray);
+            GraphicsDevice.Clear(Color.SlateGray);
             _gameManager.Draw();
 
             base.Draw(gameTime);

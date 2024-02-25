@@ -37,7 +37,9 @@ namespace ChipFlip.Managers
             _infoText = new Text("", new Vector2(10f, Globals.WindowSize.Y - 50));
             _highlightText = new Text("", new Vector2(10f, Globals.WindowSize.Y - 90));
             _player1ChipCtText = new Text("", new Vector2(595f, 607f));
+            _player1ChipCtText.Size = Size.Large;
             _player2ChipCtText = new Text("", new Vector2(1291, 607f));
+            _player2ChipCtText.Size = Size.Large;
             whosTurn = 0;
         }
 

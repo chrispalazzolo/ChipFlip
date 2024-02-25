@@ -10,6 +10,7 @@ namespace ChipFlip.Global
         public static ContentManager Content { get; set; }
         public static SpriteBatch SpriteBatch { get; set; }
         public static SpriteFont Font { get; set; }
+        public static SpriteFont FontLarge { get; set; }
         public static Point WindowSize { get; set; }
         public static Point MapSize { get; set; }
         public static Point TileSize { get; set; }
