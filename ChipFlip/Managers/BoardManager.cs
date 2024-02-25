@@ -32,6 +32,8 @@ namespace ChipFlip.Managers
         private Texture _chip1Texture;
         private Texture _chip2Texture;
         private Sprite _boarder;
+        private Sprite _player1Panel;
+        private Sprite _player2Panel;
         public Tile highlight;
         public Tile redHighlight;
         public int Rows { get; set; }
@@ -46,17 +48,6 @@ namespace ChipFlip.Managers
             Columns = 8;
             Rows = 8;
         }
-        
-        public void Load()
-        {
-            LoadTextures();
-            boardSize.Width = tileSize.Width * Columns;
-            boardSize.Height = tileSize.Height * Rows;
-            offsetX = (Globals.WindowSize.X / 2) - (boardSize.Width / 2);
-            offsetY = (Globals.WindowSize.Y / 2) - (boardSize.Height / 2);
-            _boarder.Position = new Vector2 (offsetX - ((_boarder.Texture.Width - boardSize.Width) / 2), offsetY - ((_boarder.Texture.Height - boardSize.Height) / 2));
-            CreateBoard();
-        }
 
         private void LoadTextures()
         {
@@ -65,6 +56,8 @@ namespace ChipFlip.Managers
             _chip1Texture = new Texture("chip1");
             _chip2Texture = new Texture("chip2");
             _boarder = new Sprite("BoardBorder");
+            _player1Panel = new Sprite("Player1Panel");
+            _player2Panel = new Sprite("Player2Panel");
 
             if (textures.Count > 0)
             {
@@ -72,6 +65,20 @@ namespace ChipFlip.Managers
                 tileSize.Height = textures[0].Height;
             }
         }
+
+        public void Load()
+        {
+            LoadTextures();
+            boardSize.Width = tileSize.Width * Columns;
+            boardSize.Height = tileSize.Height * Rows;
+            offsetX = (Globals.WindowSize.X / 2) - (boardSize.Width / 2);
+            offsetY = (Globals.WindowSize.Y / 2) - (boardSize.Height / 2);
+            _boarder.Position = new Vector2 (offsetX - ((_boarder.Texture.Width - boardSize.Width) / 2), offsetY - ((_boarder.Texture.Height - boardSize.Height) / 2));
+            _player1Panel.Position = new Vector2(offsetX - (_player1Panel.Texture.Width + 24), offsetY - 24);
+            _player2Panel.Position = new Vector2(_boarder.Position.X + _boarder.Texture.Width, offsetY - 24);
+            CreateBoard();
+        }
+
         private void CreateBoard()
         {
             board = new Tile[Columns, Rows];
@@ -478,6 +485,8 @@ namespace ChipFlip.Managers
         public void Draw()
         {
             _boarder.Draw();
+            _player1Panel.Draw();
+            _player2Panel.Draw();
 
             for (int y = 0; y < board.GetLength(1); y++)
             {

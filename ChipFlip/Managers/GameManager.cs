@@ -36,8 +36,8 @@ namespace ChipFlip.Managers
             _mouseText = new Text("My Text Test", new Vector2(10f, Globals.WindowSize.Y - 70));
             _infoText = new Text("", new Vector2(10f, Globals.WindowSize.Y - 50));
             _highlightText = new Text("", new Vector2(10f, Globals.WindowSize.Y - 90));
-            _player1ChipCtText = new Text("", new Vector2(_board.offsetX / 2, 100f));
-            _player2ChipCtText = new Text("", new Vector2(_board.offsetX / 2, 200f));
+            _player1ChipCtText = new Text("", new Vector2(595f, 607f));
+            _player2ChipCtText = new Text("", new Vector2(1291, 607f));
             whosTurn = 0;
         }
 
@@ -63,8 +63,8 @@ namespace ChipFlip.Managers
             _mouseText.Update("Mouse: X: " + Mouse.GetState().X + ", Y: " + Mouse.GetState().Y + " | Clicked At: X: " + InputManager.ClickedPoint.X + ", Y: " + InputManager.ClickedPoint.Y);
             _infoText.Update("Window: Width: " + Globals.WindowSize.X + " Height: " + Globals.WindowSize.Y + " | Map: Width: " + _board.boardSize.Width + " Height: " + _board.boardSize.Height + " | Tile: Width: " + _board.tileSize.Width + " Height: " + _board.tileSize.Height + " | Cols: " + _board.Columns + ", Rows: " + _board.Rows);
             _highlightText.Update("Hightlight Tile Pos: " + _board.highlight.Position + " | Mouse on: Column: " + (Mouse.GetState().X / _board.Columns) + ", Row: " + (Mouse.GetState().Y / _board.Rows) + " | IsLeftMouseClicked = " + InputManager.IsLeftMouseClicked + " | IsMouseClicked: " + InputManager.IsMouseClicked);
-            _player1ChipCtText.Update("Player 1 Chip Count: " + _board.chip1Ct);
-            _player2ChipCtText.Update("Player 2 Chip Count: " + _board.chip2Ct);
+            _player1ChipCtText.Update(_board.chip1Ct.ToString());
+            _player2ChipCtText.Update(_board.chip2Ct.ToString());
         }
 
         public void Update()
