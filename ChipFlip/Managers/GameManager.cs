@@ -5,17 +5,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ChipFlip.Managers
 {
-    public enum GameState
-    {
-        MainMenu,
-        Playing,
-        Pause,
-        Completed
-    }
-
     internal class GameManager
     {
-        private GameState _gameState;
+        private readonly MenuManager _menu;
         private readonly BoardManager _board;
         private readonly Player _player1;
         private readonly Player _player2;
@@ -29,6 +21,7 @@ namespace ChipFlip.Managers
 
         public GameManager()
         {
+            _menu = new MenuManager();
             _board = new BoardManager();
             _board.AddTexture("tile");//Switch to get tiles from a file.
             _player1 = new Player();
@@ -45,7 +38,8 @@ namespace ChipFlip.Managers
 
         public void Load()
         {
-            _gameState = GameState.Playing;
+            Globals.GameState = GameState.MainMenu;
+            _menu.Load();
             _board.Load();
             Globals.MapSize = new Point(_board.boardSize.Width, _board.boardSize.Height);
             Globals.TileSize = new Point(_board.tileSize.Width, _board.tileSize.Height);
@@ -54,12 +48,20 @@ namespace ChipFlip.Managers
 
         public void UpdatePlaying()
         {
+            _board.Update();
+
             if (_board.TileClicked != null)
             {
                 _board.SetChip(_board.TileClicked, whosTurn);
                 _board.ScanBoard(_board.TileClicked.Column, _board.TileClicked.Row, whosTurn);
                 whosTurn = whosTurn == 0 ? 1 : 0;
                 _board.TileClicked = null;
+            }
+
+            if (_board.isEnd)
+            {
+                _menu.Winner = _board.playerWon;
+                _menu.Update();
             }
 
             _mouseText.Update("Mouse: X: " + Mouse.GetState().X + ", Y: " + Mouse.GetState().Y + " | Clicked At: X: " + InputManager.ClickedPoint.X + ", Y: " + InputManager.ClickedPoint.Y);
@@ -73,26 +75,20 @@ namespace ChipFlip.Managers
         {
             InputManager.Update();
 
-            switch (_gameState)
+            if(Globals.GameState != GameState.Playing)
             {
-                case GameState.MainMenu:
-                    break;
-                case GameState.Playing:
-                    UpdatePlaying();
-                    break;
-                case GameState.Pause:
-                    break;
-                case GameState.Completed:
-                    break;
+                _menu.Update();
+
+                if(Globals.GameState == GameState.Restart)
+                {
+                    _board.Reset();
+                    Globals.GameState = GameState.Playing;
+                }
             }
-            _board.Update();
-
-            
-        }
-
-        private void DrawMainMenu()
-        {
-
+            else
+            {
+                UpdatePlaying();
+            }
         }
 
         private void DrawGameRunning()
@@ -106,35 +102,17 @@ namespace ChipFlip.Managers
             _player2ChipCtText.Draw();
         }
 
-        private void DrawPause()
-        {
-            //button to unpause
-            //button to return to main menu
-            //button to exit
-        }
-
-        private void DrawGameCompleted()
-        {
-
-        }
-
         public void Draw()
         {
             Globals.SpriteBatch.Begin();
-            switch (_gameState)
+
+            if(Globals.GameState != GameState.Playing)
             {
-                case GameState.MainMenu:
-                    DrawMainMenu();
-                    break;
-                case GameState.Playing:
-                    DrawGameRunning();
-                    break;
-                case GameState.Pause:
-                    DrawPause();
-                    break;
-                case GameState.Completed:
-                    DrawGameCompleted();
-                    break;
+                _menu.Draw();
+            }
+            else
+            {
+                DrawGameRunning();
             }
                         
             Globals.SpriteBatch.End();

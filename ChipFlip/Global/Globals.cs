@@ -1,9 +1,20 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ChipFlip.Managers;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace ChipFlip.Global
 {
+    public enum GameState
+    {
+        MainMenu,
+        Playing,
+        Pause,
+        Completed,
+        Restart,
+        Exit
+    }
+
     internal class Globals
     {
         public static float Time { get; set; }
@@ -14,6 +25,7 @@ namespace ChipFlip.Global
         public static Point WindowSize { get; set; }
         public static Point MapSize { get; set; }
         public static Point TileSize { get; set; }
+        public static GameState GameState { get; set; }
 
         public static void Update(GameTime gt)
         {

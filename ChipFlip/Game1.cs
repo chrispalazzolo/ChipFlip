@@ -42,9 +42,16 @@ namespace ChipFlip
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (Globals.GameState == GameState.Exit)
+            {
                 Exit();
+            }
 
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
+                Globals.GameState = GameState.Pause;
+            }
+            
             Globals.Update(gameTime);
             _gameManager.Update();
 

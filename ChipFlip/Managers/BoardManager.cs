@@ -42,11 +42,15 @@ namespace ChipFlip.Managers
         public Tile TileClicked { get; set; }
         public int offsetX;
         public int offsetY;
+        public bool isEnd;
+        public int playerWon;
 
         public BoardManager()
         {
             Columns = 8;
             Rows = 8;
+            isEnd = false;
+            playerWon = 0;
         }
 
         private void LoadTextures()
@@ -79,6 +83,33 @@ namespace ChipFlip.Managers
             CreateBoard();
         }
 
+        public void Init()
+        {
+            chips[3, 3] = new Chip(_chip1Texture, board[3, 3].Position, 3, 3);
+            chips[4, 3] = new Chip(_chip2Texture, board[4, 3].Position, 4, 3);
+            chips[3, 4] = new Chip(_chip2Texture, board[3, 4].Position, 3, 4);
+            chips[4, 4] = new Chip(_chip1Texture, board[4, 4].Position, 4, 4);
+
+            chip1Ct = 2;
+            chip2Ct = 2;
+
+            isEnd = false;
+            playerWon = 0;
+        }
+
+        public void Reset()
+        {
+            for (int y = 0; y < Rows; y++)
+            {
+                for (int x = 0; x < Columns; x++)
+                {
+                    chips[x, y] = null;
+                }
+            }
+            
+            Init();
+        }
+
         private void CreateBoard()
         {
             board = new Tile[Columns, Rows];
@@ -94,13 +125,7 @@ namespace ChipFlip.Managers
                 }
             }
 
-            chips[3, 3] = new Chip(_chip1Texture, board[3, 3].Position, 3, 3);
-            chips[4, 3] = new Chip(_chip2Texture, board[4, 3].Position, 4, 3);
-            chips[3, 4] = new Chip(_chip2Texture, board[3, 4].Position, 3, 4);
-            chips[4, 4] = new Chip(_chip1Texture, board[4, 4].Position, 4, 4);
-
-            chip1Ct = 2;
-            chip2Ct = 2;
+            Init();
         }
 
         public void AddTexture(string textureName)
@@ -132,6 +157,26 @@ namespace ChipFlip.Managers
             else
             {
                 chip2Ct++;
+            }
+
+            if((chip1Ct + chip2Ct) >= 64)
+            {
+                isEnd = true;
+
+                if(chip1Ct > chip2Ct)
+                {
+                    playerWon = 1;
+                }
+                else if(chip2Ct > chip1Ct)
+                {
+                    playerWon = 2;
+                }
+                else
+                {
+                    playerWon = 3;
+                }
+
+                Globals.GameState = GameState.Completed;
             }
         }
 

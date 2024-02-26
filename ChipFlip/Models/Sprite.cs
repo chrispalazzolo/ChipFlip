@@ -38,10 +38,8 @@ namespace ChipFlip.Models
         public void Update()
         {
             MouseState mState = Mouse.GetState();
-            Point mPoint = new Point(mState.X, mState.Y);
-            Rectangle rectangle = new Rectangle(mPoint.X, mPoint.Y, _texture.Width, _texture.Height);
-
-            if (rectangle.Contains(mPoint))
+            
+            if(mState.X >= Position.X && mState.X <= (Position.X + Texture.Width) && mState.Y >= Position.Y && mState.Y <= (Position.Y + Texture.Height))
             {
                 isHovered = true;
             }
