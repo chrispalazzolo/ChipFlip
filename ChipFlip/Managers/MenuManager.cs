@@ -67,7 +67,7 @@ namespace ChipFlip.Managers
             _winnerPosition = new Vector2(_windowMidX - (_winner.Texture.Width / 2), _menuPanelPosition.Y + 150);
             _winnerPositionHide = new Vector2(0 - (_winner.Texture.Width / 2), 0 - (_winner.Texture.Height / 2));
 
-            float whoWonYPos = _winnerPosition.Y + _winner.Texture.Height + 20;
+            float whoWonYPos = _winnerPosition.Y + _winner.Texture.Height + 10;
 
             _player1Position = new Vector2(_windowMidX - (_player1Winner.Texture.Width / 2), whoWonYPos);
             _player1PositionHide = new Vector2(0 - _player1Winner.Texture.Width, 0 - _player1Winner.Texture.Height);
@@ -147,8 +147,8 @@ namespace ChipFlip.Managers
                                 break;
                         }
 
-                        _playAgain.Position = _playAgainPosition;
-                        _exit.Position = _exitPosition;
+                        _playAgain.Position = new Vector2(_playAgainPosition.X, _playAgainPosition.Y + 100);
+                        _exit.Position = new Vector2(_exitPosition.X, _exitPosition.Y + 100);
                         _start.Position = _startPositionHide;
                         _continue.Position = _continuePositionHide;
                         break;

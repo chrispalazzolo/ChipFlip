@@ -29,13 +29,21 @@ namespace ChipFlip.Managers
         public Chip[,] chips;
         public int chip1Ct = 0;
         public int chip2Ct = 0;
+        private readonly Text _player1ChipCtText;
+        private readonly Text _player2ChipCtText;
+        private Vector2 _p1ChipCtTextSingleNumPos;
+        private Vector2 _p2ChipCtTextSingleNumPos;
+        private Vector2 _p1ChipCtTextDoubleNumPos;
+        private Vector2 _p2ChipCtTextDoubleNumPos;
         private Texture _chip1Texture;
         private Texture _chip2Texture;
+        private Texture _chip1GuideTexture;
+        private Texture _chip2GuideTexture;
+        private Texture _blockedHighlightTexture;
+        public Sprite playerMouseChip;
         private Sprite _boarder;
         private Sprite _player1Panel;
         private Sprite _player2Panel;
-        public Tile highlight;
-        public Tile redHighlight;
         public int Rows { get; set; }
         public int Columns { get; set; }
         public Point MouseOnTile { get; set; }
@@ -43,7 +51,9 @@ namespace ChipFlip.Managers
         public int offsetX;
         public int offsetY;
         public bool isEnd;
+        public int currentPlayer;
         public int playerWon;
+        
 
         public BoardManager()
         {
@@ -51,17 +61,31 @@ namespace ChipFlip.Managers
             Rows = 8;
             isEnd = false;
             playerWon = 0;
+            currentPlayer = 0;
+            float yPos = 606f;
+            _p1ChipCtTextSingleNumPos = new Vector2(604f, yPos);
+            _p1ChipCtTextDoubleNumPos = new Vector2(596f, yPos);
+            _player1ChipCtText = new Text("", _p1ChipCtTextSingleNumPos);
+            _player1ChipCtText.Size = Size.Large;
+            _p2ChipCtTextSingleNumPos = new Vector2(1300f, yPos);
+            _p2ChipCtTextDoubleNumPos = new Vector2(1292f, yPos);
+            _player2ChipCtText = new Text("", _p2ChipCtTextSingleNumPos);
+            _player2ChipCtText.Size = Size.Large;
         }
 
         private void LoadTextures()
         {
-            highlight = new Tile(new Texture("tile-highlight"), new Vector2(0f, 0f));
-            redHighlight = new Tile(new Texture("tile-highlight-red"), new Vector2(0f, 0f));
+            //highlight = new Tile(new Texture("tile-highlight"), new Vector2(-100f, -100f));
+            //redHighlight = new Tile(new Texture("tile-highlight-red"), new Vector2(-100f, -100f));
+            _chip1GuideTexture = new Texture("chip1Mouse");
+            _chip2GuideTexture = new Texture("chip2Mouse");
+            _blockedHighlightTexture = new Texture("tile-highlight-red");
             _chip1Texture = new Texture("chip1");
             _chip2Texture = new Texture("chip2");
             _boarder = new Sprite("BoardBorder");
             _player1Panel = new Sprite("Player1Panel");
             _player2Panel = new Sprite("Player2Panel");
+            playerMouseChip = new Sprite(_chip1GuideTexture, new Vector2(-100f, -100f));
 
             if (textures.Count > 0)
             {
@@ -95,6 +119,8 @@ namespace ChipFlip.Managers
 
             isEnd = false;
             playerWon = 0;
+            _player1ChipCtText.Position = _p1ChipCtTextSingleNumPos;
+            _player2ChipCtText.Position = _p2ChipCtTextSingleNumPos;
         }
 
         public void Reset()
@@ -500,15 +526,15 @@ namespace ChipFlip.Managers
 
                 Tile hoveredTile = board[col, row];
 
-                highlight.Position = hoveredTile.Position;
-
                 if (chips[col,row] != null)
                 {
-                    redHighlight.Position = hoveredTile.Position;
+                    playerMouseChip.Texture = _blockedHighlightTexture;
+                    playerMouseChip.Position = hoveredTile.Position;
                 }
                 else
                 {
-                    redHighlight.Position = new Vector2(0 - tileSize.Width, 0f);
+                    playerMouseChip.Texture = currentPlayer == 0 ? _chip1GuideTexture : _chip2GuideTexture;
+                    playerMouseChip.Position = hoveredTile.Position;
                 }
 
                 MouseOnTile = new Point(col, row);
@@ -525,6 +551,27 @@ namespace ChipFlip.Managers
                     }
                 }
             }
+
+            if(chip1Ct > 9)
+            {
+                _player1ChipCtText.Position = _p1ChipCtTextDoubleNumPos;
+            }
+            else
+            {
+                _player1ChipCtText.Position = _p1ChipCtTextSingleNumPos;
+            }
+
+            if (chip2Ct > 9)
+            {
+                _player2ChipCtText.Position = _p2ChipCtTextDoubleNumPos;
+            }
+            else
+            {
+                _player2ChipCtText.Position = _p2ChipCtTextSingleNumPos;
+            }
+
+            _player1ChipCtText.Update(chip1Ct.ToString());
+            _player2ChipCtText.Update(chip2Ct.ToString());
         }
 
         public void Draw()
@@ -546,8 +593,9 @@ namespace ChipFlip.Managers
                 }
             }
 
-            highlight.Draw();
-            redHighlight.Draw();
+            playerMouseChip.Draw();
+            _player1ChipCtText.Draw();
+            _player2ChipCtText.Draw();
         }
     }
 }

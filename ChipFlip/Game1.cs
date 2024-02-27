@@ -46,11 +46,6 @@ namespace ChipFlip
             {
                 Exit();
             }
-
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                Globals.GameState = GameState.Pause;
-            }
             
             Globals.Update(gameTime);
             _gameManager.Update();

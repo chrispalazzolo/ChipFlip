@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ChipFlip.Global;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace ChipFlip.Managers
@@ -11,7 +12,12 @@ namespace ChipFlip.Managers
         private static bool _isMouseClicked = false;
         public static bool IsLeftMouseClicked => _isMouseLeftClicked;
         public static bool IsMouseClicked => _isMouseClicked;
+        private static bool _isEscKeyPressed = false;
+        public static bool IsEscKeyPressed => _isEscKeyPressed;
+        private static bool _isEscKeyClicked = false;
+        public static bool IsEscKeyClicked => _isEscKeyClicked;
         public static MouseState mouseState;
+        public static KeyboardState keyboardState;
 
         public static void Update()
         {
@@ -33,6 +39,20 @@ namespace ChipFlip.Managers
 
                 _isMouseLeftClicked = false;
                 _isMouseClicked = true;
+            }
+
+            keyboardState = Keyboard.GetState();
+            _isEscKeyClicked = false;
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
+            {
+                _isEscKeyPressed = true;
+            }
+
+            if (keyboardState.IsKeyUp(Keys.Escape) && _isEscKeyPressed)
+            {
+                _isEscKeyPressed = false;
+                _isEscKeyClicked = true;
             }
         }
     }

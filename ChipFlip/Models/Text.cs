@@ -13,7 +13,7 @@ namespace ChipFlip.Models
     internal class Text
     {
         public string _text;
-        public Vector2 Position { get; protected set; }
+        public Vector2 Position { get; set; }
         public Vector2 Origin { get; protected set; }
         public Size Size { get; set; }
 
