@@ -11,6 +11,9 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Models\Player.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

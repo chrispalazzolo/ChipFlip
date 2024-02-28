@@ -21,9 +21,9 @@ namespace ChipFlip
 
         protected override void Initialize()
         {
-            Globals.WindowSize = new Point(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
-            _graphics.PreferredBackBufferWidth = Globals.WindowSize.X;
-            _graphics.PreferredBackBufferHeight = Globals.WindowSize.Y;
+            Globals.WindowSize = new Size(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+            _graphics.PreferredBackBufferWidth = Globals.WindowSize.Width;
+            _graphics.PreferredBackBufferHeight = Globals.WindowSize.Height;
             _graphics.ApplyChanges();
 
             Globals.Content = Content;

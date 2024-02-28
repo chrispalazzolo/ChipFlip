@@ -7,28 +7,28 @@ using System.Linq;
 
 namespace ChipFlip.Managers
 {
+    enum ScanDirection
+    {
+        Up,
+        Down,
+        Left,
+        Right,
+        DiagUpRight,
+        DiagUpLeft,
+        DiagDownRight,
+        DiagDownLeft
+    }
+
     internal class BoardManager
     {
-        public struct MapSize
-        {
-            public int Width;
-            public int Height;
-        }
-
-        public struct TileSize
-        {
-            public int Width;
-            public int Height;
-        }
-
-        public MapSize boardSize = new MapSize();
-        public TileSize tileSize = new TileSize();
+        public Size BoardSize;
+        public Size TileSize;
         public List<Texture> textures = new List<Texture>();
         public List<Tile> tileSprites = new List<Tile>();
         public Tile[,] board;
         public Chip[,] chips;
-        public int chip1Ct = 0;
-        public int chip2Ct = 0;
+        public int Chip1Ct { get; set; }
+        public int Chip2Ct { get; set; }
         private readonly Text _player1ChipCtText;
         private readonly Text _player2ChipCtText;
         private Vector2 _p1ChipCtTextSingleNumPos;
@@ -44,39 +44,34 @@ namespace ChipFlip.Managers
         private Sprite _boarder;
         private Sprite _player1Panel;
         private Sprite _player2Panel;
-        public int Rows { get; set; }
-        public int Columns { get; set; }
+        public Grid BoardGrid {  get; set; }
         public Point MouseOnTile { get; set; }
         public Tile TileClicked { get; set; }
-        public int offsetX;
-        public int offsetY;
-        public bool isEnd;
-        public int currentPlayer;
+        public Offset BoardOffset { get; set; }
+        public bool hasWinner;
+        public int CurrentPlayer { get; set; }
         public int playerWon;
         
 
         public BoardManager()
         {
-            Columns = 8;
-            Rows = 8;
-            isEnd = false;
+            BoardGrid = new Grid(8, 8);
+            hasWinner = false;
             playerWon = 0;
-            currentPlayer = 0;
+            CurrentPlayer = 0;
             float yPos = 606f;
             _p1ChipCtTextSingleNumPos = new Vector2(604f, yPos);
             _p1ChipCtTextDoubleNumPos = new Vector2(596f, yPos);
             _player1ChipCtText = new Text("", _p1ChipCtTextSingleNumPos);
-            _player1ChipCtText.Size = Size.Large;
+            _player1ChipCtText.Size = TextSizes.Large;
             _p2ChipCtTextSingleNumPos = new Vector2(1300f, yPos);
             _p2ChipCtTextDoubleNumPos = new Vector2(1292f, yPos);
             _player2ChipCtText = new Text("", _p2ChipCtTextSingleNumPos);
-            _player2ChipCtText.Size = Size.Large;
+            _player2ChipCtText.Size = TextSizes.Large;
         }
 
         private void LoadTextures()
         {
-            //highlight = new Tile(new Texture("tile-highlight"), new Vector2(-100f, -100f));
-            //redHighlight = new Tile(new Texture("tile-highlight-red"), new Vector2(-100f, -100f));
             _chip1GuideTexture = new Texture("chip1Mouse");
             _chip2GuideTexture = new Texture("chip2Mouse");
             _blockedHighlightTexture = new Texture("tile-highlight-red");
@@ -85,25 +80,24 @@ namespace ChipFlip.Managers
             _boarder = new Sprite("BoardBorder");
             _player1Panel = new Sprite("Player1Panel");
             _player2Panel = new Sprite("Player2Panel");
-            playerMouseChip = new Sprite(_chip1GuideTexture, new Vector2(-100f, -100f));
-
-            if (textures.Count > 0)
-            {
-                tileSize.Width = textures[0].Width;
-                tileSize.Height = textures[0].Height;
-            }
         }
 
         public void Load()
         {
             LoadTextures();
-            boardSize.Width = tileSize.Width * Columns;
-            boardSize.Height = tileSize.Height * Rows;
-            offsetX = (Globals.WindowSize.X / 2) - (boardSize.Width / 2);
-            offsetY = (Globals.WindowSize.Y / 2) - (boardSize.Height / 2);
-            _boarder.Position = new Vector2 (offsetX - ((_boarder.Texture.Width - boardSize.Width) / 2), offsetY - ((_boarder.Texture.Height - boardSize.Height) / 2));
-            _player1Panel.Position = new Vector2(offsetX - (_player1Panel.Texture.Width + 24), offsetY - 24);
-            _player2Panel.Position = new Vector2(_boarder.Position.X + _boarder.Texture.Width, offsetY - 24);
+            
+            playerMouseChip = new Sprite(_chip1GuideTexture, new Vector2(-100f, -100f));
+            
+            if (textures.Count > 0)
+            {
+                TileSize = new Size(textures[0].Width, textures[0].Height);
+            }
+
+            BoardSize = new Size(TileSize.Width * BoardGrid.Columns, TileSize.Height * BoardGrid.Rows);
+            BoardOffset = new Offset((Globals.WindowSize.Width / 2) - (BoardSize.Width / 2), (Globals.WindowSize.Height / 2) - (BoardSize.Height / 2));
+            _boarder.Position = new Vector2 (BoardOffset.X - ((_boarder.Texture.Width - BoardSize.Width) / 2), BoardOffset.Y - ((_boarder.Texture.Height - BoardSize.Height) / 2));
+            _player1Panel.Position = new Vector2(BoardOffset.X - (_player1Panel.Texture.Width + 24), BoardOffset.Y - 24);
+            _player2Panel.Position = new Vector2(_boarder.Position.X + _boarder.Texture.Width, BoardOffset.Y - 24);
             CreateBoard();
         }
 
@@ -114,10 +108,10 @@ namespace ChipFlip.Managers
             chips[3, 4] = new Chip(_chip2Texture, board[3, 4].Position, 3, 4);
             chips[4, 4] = new Chip(_chip1Texture, board[4, 4].Position, 4, 4);
 
-            chip1Ct = 2;
-            chip2Ct = 2;
+            Chip1Ct = 2;
+            Chip2Ct = 2;
 
-            isEnd = false;
+            hasWinner = false;
             playerWon = 0;
             _player1ChipCtText.Position = _p1ChipCtTextSingleNumPos;
             _player2ChipCtText.Position = _p2ChipCtTextSingleNumPos;
@@ -125,9 +119,9 @@ namespace ChipFlip.Managers
 
         public void Reset()
         {
-            for (int y = 0; y < Rows; y++)
+            for (int y = 0; y < BoardGrid.Rows; y++)
             {
-                for (int x = 0; x < Columns; x++)
+                for (int x = 0; x < BoardGrid.Columns; x++)
                 {
                     chips[x, y] = null;
                 }
@@ -138,15 +132,15 @@ namespace ChipFlip.Managers
 
         private void CreateBoard()
         {
-            board = new Tile[Columns, Rows];
-            chips = new Chip[Columns, Rows];
+            board = new Tile[BoardGrid.Columns, BoardGrid.Rows];
+            chips = new Chip[BoardGrid.Columns, BoardGrid.Rows];
             Vector2 position = new Vector2();
 
-            for (int y = 0; y < Rows; y++)
+            for (int y = 0; y < BoardGrid.Rows; y++)
             {
-                for (int x = 0; x < Columns; x++)
+                for (int x = 0; x < BoardGrid.Columns; x++)
                 {
-                    position = new Vector2((x * tileSize.Width) + offsetX, (y * tileSize.Height) + offsetY);
+                    position = new Vector2((x * TileSize.Width) + BoardOffset.X, (y * TileSize.Height) + BoardOffset.Y);
                     board[x, y] = new Tile(textures[0], position, x, y);
                 }
             }
@@ -166,8 +160,8 @@ namespace ChipFlip.Managers
         {
             if (!tileSprites.Any())
             {
-                tileSize.Width = tileSprites[0].Width;
-                tileSize.Height = tileSprites[0].Height;
+                TileSize.Width = tileSprites[0].Width;
+                TileSize.Height = tileSprites[0].Height;
             }
         }
 
@@ -178,310 +172,160 @@ namespace ChipFlip.Managers
 
             if(whichChip == 0)
             {
-                chip1Ct++;
+                Chip1Ct++;
             }
             else
             {
-                chip2Ct++;
+                Chip2Ct++;
+            }
+        }
+
+        private void ScanColumn(int startRow, int col, ScanDirection direction, Texture flipToTexture)
+        {
+            List<Chip> chipsToFlip = new List<Chip>();
+            int y = direction == ScanDirection.Down ? startRow + 1 : startRow - 1;
+            bool isColEnd = false;
+
+            while (true)
+            {
+                isColEnd = direction == ScanDirection.Down ? y >= BoardGrid.Rows : y < 0;
+                
+                if (isColEnd || chips[col, y] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[col, y].TextureName == flipToTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, flipToTexture);
+
+                    if (flipToTexture == _chip1Texture)
+                    {
+                        Chip1Ct += chipsToFlip.Count;
+                        Chip2Ct -= chipsToFlip.Count;
+                    }
+                    else
+                    {
+                        Chip1Ct -= chipsToFlip.Count;
+                        Chip2Ct += chipsToFlip.Count;
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[col, y]);
+                    
+                    y = direction == ScanDirection.Down ? y + 1  : y - 1;
+                }
+            }
+        }
+
+        private void ScanRow(int row, int startCol, ScanDirection direction, Texture flipToTexture)
+        {
+            List<Chip> chipsToFlip = new List<Chip>();
+            int x = direction == ScanDirection.Right ? startCol + 1 : startCol - 1;
+            bool isRowEnd = false;
+
+            while (true)
+            {
+                isRowEnd = direction == ScanDirection.Right ? x >= BoardGrid.Rows : x < 0;
+                
+                if (isRowEnd || chips[x, row] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[x, row].TextureName == flipToTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, flipToTexture);
+                    
+                    if (flipToTexture == _chip1Texture)
+                    {
+                        Chip1Ct += chipsToFlip.Count;
+                        Chip2Ct -= chipsToFlip.Count;
+                    }
+                    else
+                    {
+                        Chip1Ct -= chipsToFlip.Count;
+                        Chip2Ct += chipsToFlip.Count;
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[x, row]);
+                    x = direction == ScanDirection.Right ? x + 1 : x - 1;
+                }
+            }
+        }
+
+        private void ScanDiagonal(int startRow, int startCol, ScanDirection direction, Texture flipToTexture)
+        {
+            List<Chip> chipsToFlip = new List<Chip>();
+            int x = direction == ScanDirection.DiagUpRight || direction == ScanDirection.DiagDownRight ? startCol + 1 : startCol - 1;
+            int y = direction == ScanDirection.DiagDownRight || direction == ScanDirection.DiagDownLeft ? startRow + 1 : startRow - 1;
+
+            bool isColEnd = false;
+            bool isRowEnd = false;
+
+            while (true)
+            {
+                isColEnd = direction == ScanDirection.DiagUpRight || direction == ScanDirection.DiagDownRight ? x >= BoardGrid.Columns : x < 0;
+                isRowEnd = direction == ScanDirection.DiagDownRight || direction == ScanDirection.DiagDownLeft ? y >= BoardGrid.Columns : y < 0;
+                
+                if (isColEnd || isRowEnd || chips[x, y] == null)
+                {
+                    chipsToFlip.Clear();
+                    break;
+                }
+                else if (chips[x, y].TextureName == flipToTexture.TextureName)
+                {
+                    FlipChips(chipsToFlip, flipToTexture);
+
+                    if (flipToTexture == _chip1Texture)
+                    {
+                        Chip1Ct += chipsToFlip.Count();
+                        Chip2Ct -= chipsToFlip.Count();
+                    }
+                    else
+                    {
+                        Chip1Ct -= chipsToFlip.Count();
+                        Chip2Ct += chipsToFlip.Count();
+                    }
+
+                    break;
+                }
+                else
+                {
+                    chipsToFlip.Add(chips[x, y]);
+                    x = direction == ScanDirection.DiagUpRight || direction == ScanDirection.DiagDownRight ? x + 1 : x - 1;
+                    y = direction == ScanDirection.DiagDownRight || direction == ScanDirection.DiagDownLeft ? y + 1 : y - 1;
+                }
             }
         }
 
         public void ScanBoard(int col, int row, int whichChip)
         {
             Texture chipTexture = whichChip == 0 ? _chip1Texture : _chip2Texture;
-            List<Chip> chipsToFlip = new List<Chip>();
-
-            //Scan Down
-            int y = row + 1;
-            while (true)
-            {
-                if (y >= Rows || chips[col, y] == null)
-                {
-                    chipsToFlip.Clear();
-                    break;
-                }
-                else if(chips[col, y].TextureName == chipTexture.TextureName)
-                {
-                    FlipChips(chipsToFlip, chipTexture);
-
-                    if(whichChip == 0)
-                    {
-                        chip1Ct += chipsToFlip.Count();
-                        chip2Ct -= chipsToFlip.Count();
-                    }
-                    else
-                    {
-                        chip1Ct -= chipsToFlip.Count();
-                        chip2Ct += chipsToFlip.Count();
-                    }
-
-                    break;
-                }
-                else
-                {
-                    chipsToFlip.Add(chips[col, y]);
-                    y++;
-                }
-            }
             
-            chipsToFlip.Clear();
-
-            //Scan Up
-            y = row - 1;
-            while (true)
-            {
-                if (y < 0 || chips[col, y] == null)
-                {
-                    chipsToFlip.Clear();
-                    break;
-                }
-                else if(chips[col, y].TextureName == chipTexture.TextureName)
-                {
-                    FlipChips(chipsToFlip, chipTexture);
-
-                    if (whichChip == 0)
-                    {
-                        chip1Ct += chipsToFlip.Count();
-                        chip2Ct -= chipsToFlip.Count();
-                    }
-                    else
-                    {
-                        chip1Ct -= chipsToFlip.Count();
-                        chip2Ct += chipsToFlip.Count();
-                    }
-
-                    break;
-                }
-                else
-                {
-                    chipsToFlip.Add(chips[col, y]);
-                    y--;
-                }
-            }
-            
-            chipsToFlip.Clear();
-            
-            //Scan Right
-            int x = col + 1;
-            while (true)
-            {
-                if (x >= Columns || chips[x, row] == null)
-                {
-                    chipsToFlip.Clear();
-                    break;
-                }
-                else if (chips[x, row].TextureName == chipTexture.TextureName)
-                {
-                    FlipChips(chipsToFlip, chipTexture);
-
-                    if (whichChip == 0)
-                    {
-                        chip1Ct += chipsToFlip.Count();
-                        chip2Ct -= chipsToFlip.Count();
-                    }
-                    else
-                    {
-                        chip1Ct -= chipsToFlip.Count();
-                        chip2Ct += chipsToFlip.Count();
-                    }
-
-                    break;
-                }
-                else
-                {
-                    chipsToFlip.Add(chips[x, row]);
-                    x++;
-                }
-            }
-            
-            chipsToFlip.Clear();
-
-            //Scan Left
-            x = col - 1;
-            while (true)
-            {
-                if (x < 0 || chips[x, row] == null)
-                {
-                    chipsToFlip.Clear();
-                    break;
-                }
-                else if (chips[x, row].TextureName == chipTexture.TextureName)
-                {
-                    FlipChips(chipsToFlip, chipTexture);
-
-                    if (whichChip == 0)
-                    {
-                        chip1Ct += chipsToFlip.Count();
-                        chip2Ct -= chipsToFlip.Count();
-                    }
-                    else
-                    {
-                        chip1Ct -= chipsToFlip.Count();
-                        chip2Ct += chipsToFlip.Count();
-                    }
-
-                    break;
-                }
-                else
-                {
-                    chipsToFlip.Add(chips[x, row]);
-                    x--;
-                }
-            }
-            
-            chipsToFlip.Clear();
-
+            //Scan Column Down
+            ScanColumn(row, col, ScanDirection.Down, chipTexture);
+            //Scan Column Up
+            ScanColumn(row, col, ScanDirection.Up, chipTexture);
+            //Scan Row Right
+            ScanRow(row, col, ScanDirection.Right, chipTexture);
+            //Scan Row Left
+            ScanRow(row, col, ScanDirection.Left, chipTexture);
             //Scan Diagonal Up Right
-            x = col + 1;
-            y = row - 1;
-
-            while (true)
-            {
-                if (x >= Columns || y < 0 || chips[x, y] == null)
-                {
-                    chipsToFlip.Clear();
-                    break;
-                }
-                else if (chips[x, y].TextureName == chipTexture.TextureName)
-                {
-                    FlipChips(chipsToFlip, chipTexture);
-
-                    if (whichChip == 0)
-                    {
-                        chip1Ct += chipsToFlip.Count();
-                        chip2Ct -= chipsToFlip.Count();
-                    }
-                    else
-                    {
-                        chip1Ct -= chipsToFlip.Count();
-                        chip2Ct += chipsToFlip.Count();
-                    }
-
-                    break;
-                }
-                else
-                {
-                    chipsToFlip.Add(chips[x, y]);
-                    x++;
-                    y--;
-                }
-            }
-
-            chipsToFlip.Clear();
-
+            ScanDiagonal(row, col, ScanDirection.DiagUpRight, chipTexture);
             //Scan Diagonal Down Right
-            x = col + 1;
-            y = row + 1;
-
-            while (true)
-            {
-                if (x >= Columns || y >= Rows || chips[x, y] == null)
-                {
-                    chipsToFlip.Clear();
-                    break;
-                }
-                else if (chips[x, y].TextureName == chipTexture.TextureName)
-                {
-                    FlipChips(chipsToFlip, chipTexture);
-
-                    if (whichChip == 0)
-                    {
-                        chip1Ct += chipsToFlip.Count();
-                        chip2Ct -= chipsToFlip.Count();
-                    }
-                    else
-                    {
-                        chip1Ct -= chipsToFlip.Count();
-                        chip2Ct += chipsToFlip.Count();
-                    }
-
-                    break;
-                }
-                else
-                {
-                    chipsToFlip.Add(chips[x, y]);
-                    x++;
-                    y++;
-                }
-            }
-
-            chipsToFlip.Clear();
-
+            ScanDiagonal(row, col, ScanDirection.DiagDownRight, chipTexture);
             //Scan Diagonal Down Left
-            x = col - 1;
-            y = row + 1;
-
-            while (true)
-            {
-                if (x < 0 || y >= Rows || chips[x, y] == null)
-                {
-                    chipsToFlip.Clear();
-                    break;
-                }
-                else if (chips[x, y].TextureName == chipTexture.TextureName)
-                {
-                    FlipChips(chipsToFlip, chipTexture);
-
-                    if (whichChip == 0)
-                    {
-                        chip1Ct += chipsToFlip.Count();
-                        chip2Ct -= chipsToFlip.Count();
-                    }
-                    else
-                    {
-                        chip1Ct -= chipsToFlip.Count();
-                        chip2Ct += chipsToFlip.Count();
-                    }
-
-                    break;
-                }
-                else
-                {
-                    chipsToFlip.Add(chips[x, y]);
-                    x--;
-                    y++;
-                }
-            }
-
-            chipsToFlip.Clear();
-
+            ScanDiagonal(row, col, ScanDirection.DiagDownLeft, chipTexture);
             //Scan Diagonal Up Left
-            x = col - 1;
-            y = row - 1;
-
-            while (true)
-            {
-                if (x < 0 || y < 0 || chips[x, y] == null)
-                {
-                    chipsToFlip.Clear();
-                    break;
-                }
-                else if (chips[x, y].TextureName == chipTexture.TextureName)
-                {
-                    FlipChips(chipsToFlip, chipTexture);
-
-                    if (whichChip == 0)
-                    {
-                        chip1Ct += chipsToFlip.Count();
-                        chip2Ct -= chipsToFlip.Count();
-                    }
-                    else
-                    {
-                        chip1Ct -= chipsToFlip.Count();
-                        chip2Ct += chipsToFlip.Count();
-                    }
-
-                    break;
-                }
-                else
-                {
-                    chipsToFlip.Add(chips[x, y]);
-                    x--;
-                    y--;
-                }
-            }
-
-            chipsToFlip.Clear();
+            ScanDiagonal(row, col, ScanDirection.DiagUpLeft, chipTexture);
         }
 
         private void FlipChips(List<Chip> chipsToFlip, Texture changeTo)
@@ -494,15 +338,15 @@ namespace ChipFlip.Managers
                 }
             }
 
-            if ((chip1Ct + chip2Ct) >= 64)
+            if ((Chip1Ct + Chip2Ct) >= 64)
             {
-                isEnd = true;
+                hasWinner = true;
 
-                if (chip1Ct > chip2Ct)
+                if (Chip1Ct > Chip2Ct)
                 {
                     playerWon = 1;
                 }
-                else if (chip2Ct > chip1Ct)
+                else if (Chip2Ct > Chip1Ct)
                 {
                     playerWon = 2;
                 }
@@ -517,10 +361,10 @@ namespace ChipFlip.Managers
         {
             MouseState mState = Mouse.GetState();
 
-            if((mState.X > offsetX && mState.X < (boardSize.Width + offsetX)) &&  (mState.Y > offsetY && mState.Y < (boardSize.Height + offsetY)))
+            if((mState.X > BoardOffset.X && mState.X < (BoardSize.Width + BoardOffset.X)) &&  (mState.Y > BoardOffset.Y && mState.Y < (BoardSize.Height + BoardOffset.Y)))
             {
-                int col = (mState.X - offsetX) / tileSize.Width;
-                int row = (mState.Y - offsetY) / tileSize.Height;
+                int col = (mState.X - BoardOffset.X) / TileSize.Width;
+                int row = (mState.Y - BoardOffset.Y) / TileSize.Height;
 
                 Tile hoveredTile = board[col, row];
 
@@ -531,7 +375,7 @@ namespace ChipFlip.Managers
                 }
                 else
                 {
-                    playerMouseChip.Texture = currentPlayer == 0 ? _chip1GuideTexture : _chip2GuideTexture;
+                    playerMouseChip.Texture = CurrentPlayer == 0 ? _chip1GuideTexture : _chip2GuideTexture;
                     playerMouseChip.Position = hoveredTile.Position;
                 }
 
@@ -550,26 +394,11 @@ namespace ChipFlip.Managers
                 }
             }
 
-            if(chip1Ct > 9)
-            {
-                _player1ChipCtText.Position = _p1ChipCtTextDoubleNumPos;
-            }
-            else
-            {
-                _player1ChipCtText.Position = _p1ChipCtTextSingleNumPos;
-            }
-
-            if (chip2Ct > 9)
-            {
-                _player2ChipCtText.Position = _p2ChipCtTextDoubleNumPos;
-            }
-            else
-            {
-                _player2ChipCtText.Position = _p2ChipCtTextSingleNumPos;
-            }
-
-            _player1ChipCtText.Update(chip1Ct.ToString());
-            _player2ChipCtText.Update(chip2Ct.ToString());
+            _player1ChipCtText.Position = Chip1Ct > 9 ? _p1ChipCtTextDoubleNumPos : _p1ChipCtTextSingleNumPos;
+            _player2ChipCtText.Position = Chip2Ct > 9 ? _p2ChipCtTextDoubleNumPos : _p2ChipCtTextSingleNumPos;
+            
+            _player1ChipCtText.Update(Chip1Ct.ToString());
+            _player2ChipCtText.Update(Chip2Ct.ToString());
         }
 
         public void Draw()
@@ -594,7 +423,7 @@ namespace ChipFlip.Managers
             _player1ChipCtText.Draw();
             _player2ChipCtText.Draw();
 
-            if(Globals.GameState == GameState.DelayEnd || Globals.GameState == GameState.Completed)
+            if(Globals.GameState != GameState.DelayEnd || Globals.GameState != GameState.Completed)
             {
                 playerMouseChip.Draw();
             }

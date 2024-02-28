@@ -1,7 +1,6 @@
 ﻿using ChipFlip.Global;
 using ChipFlip.Models;
 using Microsoft.Xna.Framework;
-using System.Threading;
 
 namespace ChipFlip.Managers
 {
@@ -10,7 +9,7 @@ namespace ChipFlip.Managers
         private readonly MenuManager _menu;
         private readonly BoardManager _board;
         private readonly Sprite _logo;
-        private int whosTurn;
+        private int PlayerTurn { get; set; } = 0;
 
         public GameManager()
         {
@@ -18,7 +17,6 @@ namespace ChipFlip.Managers
             _board = new BoardManager();
             _board.AddTexture("tile");
             _logo = new Sprite("Logo");
-            whosTurn = 0;
         }
 
         public void Load()
@@ -26,9 +24,7 @@ namespace ChipFlip.Managers
             Globals.GameState = GameState.MainMenu;
             _menu.Load();
             _board.Load();
-            Globals.MapSize = new Point(_board.boardSize.Width, _board.boardSize.Height);
-            Globals.TileSize = new Point(_board.tileSize.Width, _board.tileSize.Height);
-            _logo.Position = new Vector2((Globals.WindowSize.X / 2) - (_logo.Texture.Width/2), (_board.offsetY / 2) - _logo.Texture.Height/2);
+            _logo.Position = new Vector2((Globals.WindowSize.Width / 2) - (_logo.Texture.Width/2), (_board.BoardOffset.Y / 2) - _logo.Texture.Height/2);
         }
 
         public void UpdatePlaying()
@@ -37,14 +33,14 @@ namespace ChipFlip.Managers
 
             if (_board.TileClicked != null)
             {
-                _board.SetChip(_board.TileClicked, whosTurn);
-                _board.ScanBoard(_board.TileClicked.Column, _board.TileClicked.Row, whosTurn);
-                whosTurn = whosTurn == 0 ? 1 : 0;
-                _board.currentPlayer = whosTurn;
+                _board.SetChip(_board.TileClicked, PlayerTurn);
+                _board.ScanBoard(_board.TileClicked.Column, _board.TileClicked.Row, PlayerTurn);
+                PlayerTurn = PlayerTurn == 0 ? 1 : 0;
+                _board.CurrentPlayer = PlayerTurn;
                 _board.TileClicked = null;
             }
 
-            if (_board.isEnd)
+            if (_board.hasWinner)
             {
                 Globals.GameState = GameState.DelayEnd;
                 _menu.Winner = _board.playerWon;
@@ -59,6 +55,7 @@ namespace ChipFlip.Managers
             if(Globals.GameState != GameState.Playing)
             {
                 _menu.Update();
+                Globals.GameState = _menu.GetMenuAction();
 
                 if(Globals.GameState == GameState.Restart)
                 {
@@ -82,12 +79,6 @@ namespace ChipFlip.Managers
             }
         }
 
-        private void DrawGameRunning()
-        {
-            _logo.Draw();
-            _board.Draw();
-        }
-
         public void Draw()
         {
             Globals.SpriteBatch.Begin();
@@ -98,8 +89,10 @@ namespace ChipFlip.Managers
             }
             else
             {
-                DrawGameRunning();
+                _logo.Draw();
+                _board.Draw();
 
+                //If the game is finished or paused, we still want the board to be drawn
                 if (Globals.GameState == GameState.Completed || Globals.GameState == GameState.Pause)
                 {
                     _menu.Draw();

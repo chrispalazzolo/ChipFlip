@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ChipFlip.Models
 {
-    enum Size
+    public enum TextSizes
     {
         Small,
         Large
@@ -15,14 +15,14 @@ namespace ChipFlip.Models
         public string _text;
         public Vector2 Position { get; set; }
         public Vector2 Origin { get; protected set; }
-        public Size Size { get; set; }
+        public TextSizes Size { get; set; }
 
         public Text(string text, Vector2 position)
         {
             _text = text;
             Position = position;
-            Origin = new Vector2(Globals.WindowSize.X / 2, Globals.WindowSize.Y / 2);
-            Size = Size.Small;
+            Origin = new Vector2(Globals.WindowSize.Width / 2, Globals.WindowSize.Height / 2);
+            Size = TextSizes.Small;
         }
 
         public void Update(string text)
@@ -32,7 +32,7 @@ namespace ChipFlip.Models
         public void Draw()
         {
             Vector2 middlePoint = Globals.Font.MeasureString(_text);
-            SpriteFont Font = Size == Size.Large ? Globals.FontLarge : Globals.Font;
+            SpriteFont Font = Size == TextSizes.Large ? Globals.FontLarge : Globals.Font;
             Globals.SpriteBatch.DrawString(Font, _text, Position, Color.Black, 0f, new Vector2(0f, 0f), 1f, SpriteEffects.None, 0.5f);
         }
     }

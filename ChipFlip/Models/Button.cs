@@ -19,7 +19,7 @@ namespace ChipFlip.Models
         {
             base.Update();
 
-            if (isHovered)
+            if (IsHovered)
             {
                 base.Texture = _textureHover;
                 

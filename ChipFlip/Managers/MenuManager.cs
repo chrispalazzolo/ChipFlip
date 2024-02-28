@@ -35,8 +35,7 @@ namespace ChipFlip.Managers
         private Button _exit;
         private Vector2 _exitPosition;
         private Vector2 _exitPositionHide;
-        private float _windowMidX;
-        private float _windowMidY;
+        private Point _windowMidPoint;
 
         public int Winner;
 
@@ -56,34 +55,33 @@ namespace ChipFlip.Managers
 
         public void Load()
         {
-            _windowMidX = Globals.WindowSize.X / 2;
-            _windowMidY = Globals.WindowSize.Y / 2;
+            _windowMidPoint = new Point(Globals.WindowSize.Width / 2, Globals.WindowSize.Height / 2);
 
             //Panel
-            _menuPanelPosition = new Vector2(_windowMidX - (_menuPanel.Texture.Width / 2), _windowMidY - (_menuPanel.Texture.Height / 2));
+            _menuPanelPosition = new Vector2(_windowMidPoint.X - (_menuPanel.Texture.Width / 2), _windowMidPoint.Y - (_menuPanel.Texture.Height / 2));
             _menuPanelPositionHide = new Vector2(0 - _menuPanel.Texture.Width, 0 - _menuPanel.Texture.Height);
 
             //Text
-            _winnerPosition = new Vector2(_windowMidX - (_winner.Texture.Width / 2), _menuPanelPosition.Y + 150);
+            _winnerPosition = new Vector2(_windowMidPoint.X - (_winner.Texture.Width / 2), _menuPanelPosition.Y + 150);
             _winnerPositionHide = new Vector2(0 - (_winner.Texture.Width / 2), 0 - (_winner.Texture.Height / 2));
 
             float whoWonYPos = _winnerPosition.Y + _winner.Texture.Height + 10;
 
-            _player1Position = new Vector2(_windowMidX - (_player1Winner.Texture.Width / 2), whoWonYPos);
+            _player1Position = new Vector2(_windowMidPoint.X - (_player1Winner.Texture.Width / 2), whoWonYPos);
             _player1PositionHide = new Vector2(0 - _player1Winner.Texture.Width, 0 - _player1Winner.Texture.Height);
-            _player2Position = new Vector2(_windowMidX - (_player2Winner.Texture.Width / 2), whoWonYPos);
+            _player2Position = new Vector2(_windowMidPoint.X - (_player2Winner.Texture.Width / 2), whoWonYPos);
             _player2PositionHide = new Vector2(0 - _player2Winner.Texture.Width, 0 - _player2Winner.Texture.Height);
-            _tiePosition = new Vector2(_windowMidX - (_tie.Texture.Width / 2), whoWonYPos);
+            _tiePosition = new Vector2(_windowMidPoint.X - (_tie.Texture.Width / 2), whoWonYPos);
             _tiePositionHide = new Vector2(0 - _tie.Texture.Width, 0 - _tie.Texture.Height);
 
             //Buttons
-            _startPosition = new Vector2(_windowMidX - (_start.Texture.Width / 2), _windowMidY - (_start.Texture.Height / 2));
+            _startPosition = new Vector2(_windowMidPoint.X - (_start.Texture.Width / 2), _windowMidPoint.Y - (_start.Texture.Height / 2));
             _startPositionHide = new Vector2(0 - _start.Texture.Width, 0 - _start.Texture.Height);
-            _continuePosition = new Vector2(_windowMidX - (_continue.Texture.Width / 2), _windowMidY - (_continue.Texture.Height / 2));
+            _continuePosition = new Vector2(_windowMidPoint.X - (_continue.Texture.Width / 2), _windowMidPoint.Y - (_continue.Texture.Height / 2));
             _continuePositionHide = new Vector2(0 - _continue.Texture.Width, 0 - _continue.Texture.Height);
-            _playAgainPosition = new Vector2(_windowMidX - (_playAgain.Texture.Width / 2), _windowMidY - (_playAgain.Texture.Height / 2));
+            _playAgainPosition = new Vector2(_windowMidPoint.X - (_playAgain.Texture.Width / 2), _windowMidPoint.Y - (_playAgain.Texture.Height / 2));
             _playAgainPositionHide = new Vector2(0 - _playAgain.Texture.Width, 0 - _playAgain.Texture.Height);
-            _exitPosition = new Vector2(_windowMidX - (_exit.Texture.Width / 2), _windowMidY + (_exit.Texture.Height));
+            _exitPosition = new Vector2(_windowMidPoint.X - (_exit.Texture.Width / 2), _windowMidPoint.Y + (_exit.Texture.Height));
             _exitPositionHide = new Vector2(0 - _exit.Texture.Width, 0 - _exit.Texture.Height);
 
             HideMenu();
@@ -100,6 +98,27 @@ namespace ChipFlip.Managers
             _player1Winner.Position = _player1PositionHide;
             _player2Winner.Position = _player2PositionHide;
             _tie.Position = _tiePositionHide;
+        }
+
+        public GameState GetMenuAction()
+        {
+            if (_start.IsPressed || _continue.IsPressed)
+            {
+                return GameState.Playing;
+            }
+
+            if (_playAgain.IsPressed)
+            {
+                return GameState.Restart;
+            }
+
+            if (_exit.IsPressed)
+            {
+                return GameState.Exit;
+            }
+
+            // If no button was pressed just keep the GameState as is
+            return Globals.GameState;
         }
 
         public void Update()
@@ -159,21 +178,6 @@ namespace ChipFlip.Managers
                 _continue.Update();
                 _playAgain.Update();
                 _exit.Update();
-
-                if (_start.IsPressed || _continue.IsPressed)
-                {
-                    Globals.GameState = GameState.Playing;
-                }
-
-                if (_playAgain.IsPressed)
-                {
-                    Globals.GameState = GameState.Restart;
-                }
-
-                if (_exit.IsPressed)
-                {
-                    Globals.GameState = GameState.Exit;
-                }
             }
             else
             {

@@ -13,7 +13,8 @@ namespace ChipFlip.Models
         public Vector2 Position { get; set; }
         public Vector2 Origin { get; set; }
         public SpriteEffects Effect { get; set; }
-        public bool isHovered;
+        public bool IsHovered { get; set; }
+        
         public Sprite(string spriteName) : this(spriteName, new Vector2(0f, 0f)) { }
         public Sprite(string spriteName, Vector2 position)
         {
@@ -21,9 +22,10 @@ namespace ChipFlip.Models
             Effect = SpriteEffects.None;
             _texture = new Texture(TextureName);
             Position = position;
-            Origin = Origin = new Vector2(0f, 0f);//new Vector2(_texture.Width / 2, _texture.Height / 2);
-            isHovered = false;
+            Origin = Origin = new Vector2(0f, 0f);
+            IsHovered = false;
         }
+        
         public Sprite(Texture texture, Vector2 position) : this(texture, position, SpriteEffects.None) { }
         public Sprite(Texture texture, Vector2 position, SpriteEffects effect)
         {
@@ -31,8 +33,8 @@ namespace ChipFlip.Models
             TextureName = texture.TextureName;
             Position = position;
             Effect = effect;
-            Origin = new Vector2(0f, 0f);//new Vector2(texture.Width / 2, texture.Height / 2);
-            isHovered = false;
+            Origin = new Vector2(0f, 0f);
+            IsHovered = false;
         }
 
         public void Update()
@@ -41,11 +43,11 @@ namespace ChipFlip.Models
             
             if(mState.X >= Position.X && mState.X <= (Position.X + Texture.Width) && mState.Y >= Position.Y && mState.Y <= (Position.Y + Texture.Height))
             {
-                isHovered = true;
+                IsHovered = true;
             }
             else
             {
-                isHovered = false;
+                IsHovered = false;
             }
         }
 
