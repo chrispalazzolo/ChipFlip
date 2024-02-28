@@ -10,6 +10,7 @@ namespace ChipFlip.Global
         MainMenu,
         Playing,
         Pause,
+        DelayEnd,
         Completed,
         Restart,
         Exit

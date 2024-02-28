@@ -1,5 +1,4 @@
-﻿using ChipFlip.Global;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace ChipFlip.Managers

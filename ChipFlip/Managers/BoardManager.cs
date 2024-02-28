@@ -184,26 +184,6 @@ namespace ChipFlip.Managers
             {
                 chip2Ct++;
             }
-
-            if((chip1Ct + chip2Ct) >= 64)
-            {
-                isEnd = true;
-
-                if(chip1Ct > chip2Ct)
-                {
-                    playerWon = 1;
-                }
-                else if(chip2Ct > chip1Ct)
-                {
-                    playerWon = 2;
-                }
-                else
-                {
-                    playerWon = 3;
-                }
-
-                Globals.GameState = GameState.Completed;
-            }
         }
 
         public void ScanBoard(int col, int row, int whichChip)
@@ -513,6 +493,24 @@ namespace ChipFlip.Managers
                     chips[chip.Column, chip.Row].Texture = changeTo;
                 }
             }
+
+            if ((chip1Ct + chip2Ct) >= 64)
+            {
+                isEnd = true;
+
+                if (chip1Ct > chip2Ct)
+                {
+                    playerWon = 1;
+                }
+                else if (chip2Ct > chip1Ct)
+                {
+                    playerWon = 2;
+                }
+                else
+                {
+                    playerWon = 3;
+                }
+            }
         }
 
         public void Update()
@@ -593,9 +591,13 @@ namespace ChipFlip.Managers
                 }
             }
 
-            playerMouseChip.Draw();
             _player1ChipCtText.Draw();
             _player2ChipCtText.Draw();
+
+            if(Globals.GameState == GameState.DelayEnd || Globals.GameState == GameState.Completed)
+            {
+                playerMouseChip.Draw();
+            }
         }
     }
 }

@@ -123,6 +123,7 @@ namespace ChipFlip.Managers
                         _playAgain.Position = _playAgainPositionHide;
                         break;
                     case GameState.Completed:
+                    case GameState.DelayEnd:
                         _winner.Position = _winnerPosition;
 
                         switch (Winner)

@@ -2,7 +2,7 @@
 using ChipFlip.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using System.Threading;
 
 namespace ChipFlip
 {
@@ -46,7 +46,14 @@ namespace ChipFlip
             {
                 Exit();
             }
-            
+
+            if (Globals.GameState == GameState.DelayEnd)
+            {
+                //Poor way to delay
+                Thread.Sleep(1000);
+                Globals.GameState = GameState.Completed;
+            }
+
             Globals.Update(gameTime);
             _gameManager.Update();
 

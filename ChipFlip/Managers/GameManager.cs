@@ -1,6 +1,7 @@
 ﻿using ChipFlip.Global;
 using ChipFlip.Models;
 using Microsoft.Xna.Framework;
+using System.Threading;
 
 namespace ChipFlip.Managers
 {
@@ -45,6 +46,7 @@ namespace ChipFlip.Managers
 
             if (_board.isEnd)
             {
+                Globals.GameState = GameState.DelayEnd;
                 _menu.Winner = _board.playerWon;
                 _menu.Update();
             }
@@ -82,8 +84,8 @@ namespace ChipFlip.Managers
 
         private void DrawGameRunning()
         {
-            _board.Draw();
             _logo.Draw();
+            _board.Draw();
         }
 
         public void Draw()
