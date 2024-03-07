@@ -26,6 +26,7 @@ namespace ChipFlip.Models
             IsHovered = false;
         }
         
+        public Sprite(Texture texture) : this(texture, new Vector2(0f, 0f)) { }
         public Sprite(Texture texture, Vector2 position) : this(texture, position, SpriteEffects.None) { }
         public Sprite(Texture texture, Vector2 position, SpriteEffects effect)
         {

@@ -15,6 +15,14 @@ namespace ChipFlip.Global
         Exit
     }
 
+    public enum Winner
+    {
+        None,
+        Player1,
+        Player2,
+        Tie
+    }
+
     public class Size
     {
         public int Width { get; set; }

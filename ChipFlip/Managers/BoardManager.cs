@@ -48,16 +48,14 @@ namespace ChipFlip.Managers
         public Point MouseOnTile { get; set; }
         public Tile TileClicked { get; set; }
         public Offset BoardOffset { get; set; }
-        public bool hasWinner;
+        public Winner WinnerIs { get; set; }
         public int CurrentPlayer { get; set; }
-        public int playerWon;
         
 
         public BoardManager()
         {
             BoardGrid = new Grid(8, 8);
-            hasWinner = false;
-            playerWon = 0;
+            WinnerIs = Winner.None;
             CurrentPlayer = 0;
             float yPos = 606f;
             _p1ChipCtTextSingleNumPos = new Vector2(604f, yPos);
@@ -111,10 +109,10 @@ namespace ChipFlip.Managers
             Chip1Ct = 2;
             Chip2Ct = 2;
 
-            hasWinner = false;
-            playerWon = 0;
+            WinnerIs = Winner.None;
             _player1ChipCtText.Position = _p1ChipCtTextSingleNumPos;
             _player2ChipCtText.Position = _p2ChipCtTextSingleNumPos;
+            CurrentPlayer = 0;
         }
 
         public void Reset()
@@ -337,24 +335,239 @@ namespace ChipFlip.Managers
                     chips[chip.Column, chip.Row].Texture = changeTo;
                 }
             }
+        }
 
-            if ((Chip1Ct + Chip2Ct) >= 64)
+        private bool CheckMoves(int player, int outerLimit, int innerLimit)
+        {
+            
+
+            return false;
+        }
+
+        public bool HasMovesLeft(int player)
+        {
+            Texture playerChip;
+            Texture opponentChip;
+            bool hasStart = false;
+            int startIs = -1;
+            bool possibleMove = false;
+
+            if (player == 0)
             {
-                hasWinner = true;
+                playerChip = _chip1Texture;
+                opponentChip = _chip2Texture;
+            }
+            else
+            {
+                playerChip = _chip2Texture;
+                opponentChip = _chip1Texture;
+            }
 
-                if (Chip1Ct > Chip2Ct)
+            //Look through rows for any moves
+            for (int y = 0; y < BoardGrid.Rows; y++)
+            {
+                hasStart = false;
+                startIs = -1;
+                possibleMove = false;
+
+                for (int x = 0; x < BoardGrid.Columns; x++)
                 {
-                    playerWon = 1;
-                }
-                else if (Chip2Ct > Chip1Ct)
-                {
-                    playerWon = 2;
-                }
-                else
-                {
-                    playerWon = 3;
+                    if (chips[x, y] == null)
+                    {
+                        if (possibleMove && startIs == 1)
+                        {
+                            return true;
+                        }
+
+                        hasStart = true;
+                        startIs = 0;
+                    }
+                    else if (chips[x, y].Texture == opponentChip)
+                    {
+                        if (hasStart)
+                        {
+                            possibleMove = true;
+                        }
+                        else
+                        {
+                            possibleMove = false;
+                            startIs = -1;
+                        }
+                    }
+                    else if (chips[x, y].Texture == playerChip)
+                    {
+                        if (possibleMove && startIs == 0)
+                        {
+                            return true;
+                        }
+
+                        hasStart = true;
+                        startIs = 1;
+                    }
                 }
             }
+
+            //Look through Columns for any moves
+            for (int x = 0; x < BoardGrid.Columns; x++)
+            {
+                hasStart = false;
+                startIs = -1;
+                possibleMove = false;
+
+                for (int y = 0; y < BoardGrid.Rows; y++)
+                {
+                    if (chips[x, y] == null)
+                    {
+                        if (possibleMove && startIs == 1)
+                        {
+                            return true;
+                        }
+
+                        hasStart = true;
+                        startIs = 0;
+                    }
+                    else if (chips[x, y].Texture == opponentChip)
+                    {
+                        if (hasStart)
+                        {
+                            possibleMove = true;
+                        }
+                        else
+                        {
+                            possibleMove = false;
+                            startIs = -1;
+                        }
+                    }
+                    else if (chips[x, y].Texture == playerChip)
+                    {
+                        if (possibleMove && startIs == 0)
+                        {
+                            return true;
+                        }
+
+                        hasStart = true;
+                        startIs = 1;
+                    }
+                }
+            }
+
+            //Look for any Diagonal moves
+            //start [2,0]
+            for (int x = 2; x < 6; x++)
+            {
+                hasStart = false;
+                startIs = -1;
+                possibleMove = false;
+                int diagX = x;
+                int y = 0;
+
+                while(diagX >= 0)
+                {
+                    if (chips[diagX, y] == null)
+                    {
+                        if (possibleMove && startIs == 1)
+                        {
+                            return true;
+                        }
+
+                        hasStart = true;
+                        startIs = 0;
+                    }
+                    else if (chips[diagX, y].Texture == opponentChip)
+                    {
+                        if (hasStart)
+                        {
+                            possibleMove = true;
+                        }
+                        else
+                        {
+                            possibleMove = false;
+                            startIs = -1;
+                        }
+                    }
+                    else if (chips[diagX, y].Texture == playerChip)
+                    {
+                        if (possibleMove && startIs == 0)
+                        {
+                            return true;
+                        }
+
+                        hasStart = true;
+                        startIs = 1;
+                    }
+
+                    y++;
+                    diagX--;
+                }
+            }
+
+            for (int x = 5; x > 1; x--)
+            {
+                hasStart = false;
+                startIs = -1;
+                possibleMove = false;
+                int diagX = x;
+                int y = 0;
+
+                while (diagX < 8)
+                {
+                    if (chips[diagX, y] == null)
+                    {
+                        if (possibleMove && startIs == 1)
+                        {
+                            return true;
+                        }
+
+                        hasStart = true;
+                        startIs = 0;
+                    }
+                    else if (chips[diagX, y].Texture == opponentChip)
+                    {
+                        if (hasStart)
+                        {
+                            possibleMove = true;
+                        }
+                        else
+                        {
+                            possibleMove = false;
+                            startIs = -1;
+                        }
+                    }
+                    else if (chips[diagX, y].Texture == playerChip)
+                    {
+                        if (possibleMove && startIs == 0)
+                        {
+                            return true;
+                        }
+
+                        hasStart = true;
+                        startIs = 1;
+                    }
+
+                    y++;
+                    diagX++;
+                }
+            }
+
+            return false;
+        }
+
+        public Winner GetWinner()
+        {
+            if (Chip1Ct > Chip2Ct)
+            {
+                WinnerIs = Winner.Player1;
+            }
+            else if (Chip2Ct > Chip1Ct)
+            {
+                WinnerIs = Winner.Player2;
+            }
+            else if (Chip1Ct == Chip2Ct)
+            {
+                WinnerIs = Winner.Tie;
+            }
+
+            return WinnerIs;
         }
 
         public void Update()
